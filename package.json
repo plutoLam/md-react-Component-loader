@@ -1,0 +1,10 @@
+{
+  "name": "md-react-loader",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "marked": "^12.0.1",
+    "marked-xhtml": "^1.0.9"
+  }
+}
