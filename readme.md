@@ -1,4 +1,4 @@
-# 一个用于统计埋点的babel插件
+# 一个webpack loader，将Markdown转为React组件
 
 ![](https://img.shields.io/badge/author-PlutoLam-f66.svg#crop=0&crop=0&crop=1&crop=1&id=OXVaV&originHeight=20&originWidth=108&originalType=binary&ratio=1&rotation=0&showTitle=false&status=done&style=none&title=)
 ![](https://img.shields.io/badge/version-0.0.3-f66.svg#crop=0&crop=0&crop=1&crop=1&id=Nc47V&originHeight=20&originWidth=90&originalType=binary&ratio=1&rotation=0&showTitle=false&status=done&style=none&title=)
