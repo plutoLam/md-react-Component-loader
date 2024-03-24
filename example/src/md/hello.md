@@ -1,18 +1,19 @@
-# test
+---
+imports: |
+  import Button from '../components/Button.jsx';
 
-#### hello world1
+  import test from '../utils/util.js'
+author: plutoLam
+time: 2023/12/03
+version:
 ---
 
-<h3>{123}</h3>
-{345}
+# Hello, World
 
+Heres a component rendered inline:{}
 
-内联代码`console.log(){}`
+<Button onClick={test}>test</Button>
 
-```js
-const a = 1{};
-
+```java
+const b = 1;
 ```
-sad
-
-[marked](https://www.npmjs.com/package/marked)

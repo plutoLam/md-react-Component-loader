@@ -1,29 +1,69 @@
 const { marked } = require("marked");
+const fm = require("front-matter");
 const { markedXhtml } = require("marked-xhtml");
+const Prism = require("prismjs");
+const loadLanguages = require("prismjs/components/");
 const renderer = new marked.Renderer();
 function replaceString(str) {
   if (typeof str !== "string") return str;
-  return str?.replace(/[\{]/g, "&#123;")?.replace(/[\}]/g, "&#125;");
+  return str
+    ?.replace(/[\{]/g, "&#123;")
+    ?.replace(/[\}]/g, "&#125;")
+    .replace(/class="/g, 'className="');
 }
 
-function codeReplace(code, infoString) {
-  console.log("code, infoString: ", code, infoString);
-  // 对code进行处理
+function codeReplace(code, lang) {
+  console.log("code, lang: ", code, lang);
+  let langClss = '',html = code
+  try {
+    loadLanguages([lang]);
+    html = Prism.highlight(code, Prism.languages[lang], lang);
+    langClss = `language-${lang}`
+  } catch (error) {
+    console.log(error)
+  }
+  
+
   return replaceString(`
     <pre>
-      <code>
-        ${code}
+      <code class="${langClss}">
+        ${html}
       </code>
     </pre>
   `);
 }
 function rewrite(fn) {
-  return function() {
-    const afterString = fn.apply(renderer, [...arguments])
-    console.log('afterString: ', afterString);
-  }
+  return function () {
+    const afterString = fn.apply(renderer, [...arguments]);
+    console.log("afterString: ", afterString, fn);
+    return replaceString(afterString);
+  };
 }
-renderer.code = rewrite(renderer.code)
+
+// 块元素
+renderer.code = rewrite(codeReplace);
+renderer.blockquote = rewrite(renderer.blockquote);
+renderer.heading = rewrite(renderer.heading);
+//renderer.html = renderer.html;
+renderer.hr = rewrite(renderer.hr);
+renderer.list = rewrite(renderer.list);
+renderer.listitem = rewrite(renderer.listitem);
+renderer.checkbox = rewrite(renderer.checkbox);
+// renderer.paragraph = renderer.paragraph;
+renderer.table = rewrite(renderer.table);
+renderer.tablerow = rewrite(renderer.tablerow);
+renderer.tablecell = rewrite(renderer.tablecell);
+
+// 行元素
+renderer.strong = rewrite(renderer.strong);
+renderer.em = rewrite(renderer.em);
+renderer.codespan = rewrite(renderer.codespan);
+renderer.br = rewrite(renderer.br);
+renderer.del = rewrite(renderer.del);
+renderer.link = rewrite(renderer.link);
+renderer.image = rewrite(renderer.image);
+renderer.text = rewrite(renderer.text);
+
 // const renderer = {
 //   code: codeReplace,
 //   blockquote: replaceString,
@@ -81,8 +121,11 @@ renderer.code = rewrite(renderer.code)
 module.exports = function (source, map) {
   const options = this.query;
   const { isFunctionComponent = true } = options;
+  marked.use({ renderer }); // 这一句要在上面
   marked.use(markedXhtml());
-  marked.use({ renderer });
+
+  const fmParsed = fm(source);
+  const attributes = fmParsed.attributes;
   // marked.use({extensions})
   // marked.use({
   //   extensions: [
@@ -103,16 +146,26 @@ module.exports = function (source, map) {
   //   ],
   // });
 
-  const htmlText = marked.parse(source);
-  console.log("htmlText: ", htmlText);
+  let exportStr = "";
+  for (const key in attributes) {
+    if (key === "imports") continue;
+    exportStr += `export const ${key} = ${JSON.stringify(attributes[key])};`;
+  }
+
+  const htmlText = marked.parse(fmParsed.body);
+  // console.log("htmlText: ", htmlText);
   const reactCmp = isFunctionComponent
     ? `
   import React from 'react'
+  ${attributes.imports ? attributes.imports : ""}
+  ${exportStr}
   const App = () => (<>${htmlText}</>);
   export default App;
 `
     : `
   import React, { Component } from 'react';
+  ${attributes.imports ? attributes.imports : ""}
+  ${exportStr}
   class App extends Component{
     render() {
       return (<>${htmlText}</>)
@@ -120,5 +173,6 @@ module.exports = function (source, map) {
   }
   export default App;
 `;
+  console.log("reactCmp: ", reactCmp);
   return reactCmp;
 };

@@ -46,6 +46,10 @@ module.exports = {
           },
         ],
       },
+      {
+        test: /\.css$/, // 匹配以 .css 结尾的文件
+        use: ['style-loader', 'css-loader'], // 使用 'style-loader' 和 'css-loader' 来处理 CSS 文件
+      }
     ],
   },
   plugins: [
