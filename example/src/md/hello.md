@@ -10,7 +10,7 @@ version:
 
 # Hello, World
 
-Heres a component rendered inline:{}
+这是一行:{}
 
 <Button onClick={test}>test</Button>
 

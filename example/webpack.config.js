@@ -36,10 +36,8 @@ module.exports = {
           },
           {
             //这里写 loader 的路径
-            loader: path.resolve(
-              __dirname,
-              "../index.js"
-            ),
+            // loader: "md-react-component-loader",
+            loader: path.resolve(__dirname, "../index.js"),
             options: {
               isFunctionComponent: true,
             },
@@ -48,8 +46,8 @@ module.exports = {
       },
       {
         test: /\.css$/, // 匹配以 .css 结尾的文件
-        use: ['style-loader', 'css-loader'], // 使用 'style-loader' 和 'css-loader' 来处理 CSS 文件
-      }
+        use: ["style-loader", "css-loader"], // 使用 'style-loader' 和 'css-loader' 来处理 CSS 文件
+      },
     ],
   },
   plugins: [

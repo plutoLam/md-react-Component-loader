@@ -22,3 +22,121 @@ npm i md-react-component-loader
 ```javascript
 yarn add md-react-component-loader
 ```
+
+
+
+### 配置
+
+```javascript
+{
+    test: /\.md$/,
+    exclude: /node_modules/,
+    use: [
+      {
+        loader: "babel-loader",
+        options: {
+          presets: ["@babel/preset-env", "@babel/preset-react"],
+        },
+      },
+      {
+        //这里写 loader 的路径
+        loader: "md-react-component-loader",
+        options: {
+          isFunctionComponent: true, // true为函数组件，false为类组件
+        },
+      },
+],
+```
+
+
+
+### 使用
+
+```jsx
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Hello, {author, time, version} from './md/hello.md'
+import "prismjs/themes/prism.css";
+const App = () => {
+  return (
+    <>
+      <Hello/>
+      <p>author：{author}</p>
+      <p>time：{time}</p>
+      <p>version：{version}</p>
+    </>
+  )
+}
+ReactDOM.render(<App/>, document.getElementById('root'));
+```
+
+````markdown
+// hello.md
+---
+imports: |
+  import Button from '../components/Button.jsx';
+
+  import test from '../utils/util.js'
+author: plutoLam
+time: 2023/12/03
+version:
+---
+
+# Hello, World
+
+这是一行:{}
+
+<Button onClick={test}>test</Button>
+
+```java
+const b = 1;
+```
+````
+
+转为以下代码
+
+```jsx
+import React from "react";
+import Button from "../components/Button.jsx";
+
+import test from "../utils/util.js";
+
+export const author = "plutoLam";
+export const time = "2023/12/03";
+export const version = null;
+const App = () => (
+  <>
+    <h1>Hello, World</h1>
+    <p>这是一行:&#123;&#125;</p>
+    <p>
+      <Button onClick={test}>test</Button>
+    </p>
+
+    <pre>
+      <code className="language-java">
+        <span className="token keyword">const</span> b{" "}
+        <span className="token operator">=</span>{" "}
+        <span className="token number">1</span>
+        <span className="token punctuation">;</span>
+      </code>
+    </pre>
+  </>
+);
+export default App;
+```
+
+代码高亮得另外安装[prismjs](https://www.npmjs.com/package/prismjs)，然后全局引入`css`
+
+```javascript
+import "prismjs/themes/prism.css";
+```
+
+
+
+### 功能
+
+1. 配置完成后直接在React中引入Markdown即可自动将Markdown转为React组件
+2. 会对非HTML中的`{`和`}`进行转义，避免React将其解析为JS
+3. 在Markdown最顶部写YAML即可定义该Markdown信息，其中`imports`为关键字，loader会将其解析为JS，可以在`imports`中引入其他组件
+4. 可在Markdown中写JSX，并使用在`imports`引入的JS
+
